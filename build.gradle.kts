@@ -12,7 +12,7 @@ plugins {
 }
 
 allprojects {
-    group = "2025-09-otus-java-Felitsyn"
+    group = "ru.otus"
 
     repositories {
         mavenLocal()
