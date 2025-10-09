@@ -3,11 +3,9 @@ package ru.otus;
 import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 
+@SuppressWarnings("java:S106")
 public class HelloOtus {
-    static Logger logger = Logger.getLogger(HelloOtus.class.getName());
-
     public static void main(String[] args) {
         List<String> wish = new ArrayList<>();
         wish.add("Please say");
@@ -17,6 +15,6 @@ public class HelloOtus {
 
         String result = Joiner.on(" ").skipNulls().join(wish);
 
-        logger.info(result);
+        System.out.println(result);
     }
 }
