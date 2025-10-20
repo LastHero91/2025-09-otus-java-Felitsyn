@@ -4,17 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Customer {
-    private static final List<Customer> CUSTOMERS = new ArrayList<>();
-    private final long id;
+    private long id;
     private String name;
     private long scores;
 
     public Customer(long id, String name, long scores) {
-        CUSTOMERS.add(this);
-
         this.id = id;
         this.name = name;
         this.scores = scores;
+
+        CustomerService.putNewCustomer(this);
+    }
+
+    public Customer(Customer customer){
+        this.id = customer.getId();
+        this.name = customer.getName();
+        this.scores = customer.getScores();
+
+        CustomerService.putNewCustomer(this);
     }
 
     public long getId() {
@@ -26,7 +33,7 @@ public class Customer {
     }
 
     public void setName(String name) {
-        CUSTOMERS.stream().filter(customer -> customer.getId() == this.id).forEach(customer -> customer.name = name);
+        this.name = name;
     }
 
     public long getScores() {
@@ -34,7 +41,7 @@ public class Customer {
     }
 
     public void setScores(long scores) {
-        CUSTOMERS.forEach(customer -> customer.scores += scores);
+        this.scores = scores;
     }
 
     @Override
