@@ -1,8 +1,5 @@
 package homework;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Customer {
     private long id;
     private String name;
@@ -12,16 +9,12 @@ public class Customer {
         this.id = id;
         this.name = name;
         this.scores = scores;
-
-        CustomerService.putNewCustomer(this);
     }
 
-    public Customer(Customer customer){
+    public Customer(Customer customer) {
         this.id = customer.getId();
         this.name = customer.getName();
         this.scores = customer.getScores();
-
-        CustomerService.putNewCustomer(this);
     }
 
     public long getId() {
