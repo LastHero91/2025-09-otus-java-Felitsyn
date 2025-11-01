@@ -3,26 +3,27 @@ package homework;
 import java.util.*;
 
 public class CustomerService {
-    private final NavigableMap<Customer, String> sortedCustomers =
+    private final NavigableMap<Customer, String> sortedCustomerMap =
             new TreeMap<>(Comparator.comparingLong(Customer::getScores));
 
     public Map.Entry<Customer, String> getSmallest() {
-        return getSortedCustomersCopy().firstEntry();
+        return getCustomerEntryCopy(sortedCustomerMap.firstEntry());
     }
 
     public Map.Entry<Customer, String> getNext(Customer customer) {
-        return getSortedCustomersCopy().higherEntry(customer);
+        return getCustomerEntryCopy(sortedCustomerMap.higherEntry(customer));
     }
 
     public void add(Customer customer, String data) {
-        sortedCustomers.put(customer, data);
+        sortedCustomerMap.put(customer, data);
     }
 
-    /** Возвращает глубокую копию sortedCustomers. */
-    private NavigableMap<Customer, String> getSortedCustomersCopy() {
-        NavigableMap<Customer, String> sortedCustomersCopy = new TreeMap<>(sortedCustomers.comparator());
-        sortedCustomers.forEach((k, v) -> sortedCustomersCopy.put(new Customer(k), new String(v)));
+    /** Возвращает Map.Entry<Customer, String> с глубоким копированием Customer */
+    private Map.Entry<Customer, String> getCustomerEntryCopy(Map.Entry<Customer, String> entry) {
+        if (entry == null) return null;
 
-        return sortedCustomersCopy;
+        NavigableMap<Customer, String> singleCustomerMap = new TreeMap<>(sortedCustomerMap.comparator());
+        singleCustomerMap.put(new Customer(entry.getKey()), entry.getValue());
+        return singleCustomerMap.firstEntry();
     }
 }
