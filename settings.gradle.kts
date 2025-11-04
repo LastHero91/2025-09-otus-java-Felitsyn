@@ -1,5 +1,6 @@
 rootProject.name = "2025-09-otus-java-Felitsyn"
 include("hw01-gradle")
+include("hw04-generics")
 
 pluginManagement {
     val jgitver: String by settings
