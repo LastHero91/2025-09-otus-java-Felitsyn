@@ -1,7 +1,6 @@
 package ru.otus;
 
 public interface TestLoggingInterface {
-    @Log
     void calculation();
     void calculation(int param);
     void calculation(int param, int param2);

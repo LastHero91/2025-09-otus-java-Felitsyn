@@ -28,21 +28,20 @@ class Ioc {
 
             for (var method : testLoggingClass.getClass().getMethods()) {
                 if (method.isAnnotationPresent(Log.class)) {
-                    methods.add(method.getName() + Arrays.asList(method.getParameterTypes()));
+                    methods.add(getMethodSignature(method));
                 }
             }
         }
 
         @Override
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-            var argsStr = args != null
-                    ? Arrays.stream(args)
+            if (methods.contains(getMethodSignature(method))) {
+                var argsStr = args != null
+                         ? Arrays.stream(args)
                         .map(obj -> Objects.toString(obj, "null"))
                         .toArray(String[]::new)
-                    : new String[]{""};
+                        : new String[]{""};
 
-            if (methods.contains(method.getName() + Arrays.asList(method.getParameterTypes()))
-                    || method.isAnnotationPresent(Log.class)) {
                 logger.info("executed method: {}, param: {}",
                         method.getName(), String.join(", ",argsStr));
                 }
@@ -53,6 +52,10 @@ class Ioc {
         @Override
         public String toString() {
             return "HWInvocationHandler{" + "testLoggingClass=" + testLoggingClass + '}';
+        }
+
+        private String getMethodSignature(Method method) {
+            return method.getName() + Arrays.asList(method.getParameterTypes());
         }
     }
 }
