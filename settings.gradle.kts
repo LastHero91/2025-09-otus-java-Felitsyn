@@ -4,6 +4,7 @@ include("hw04-generics")
 include("hw06-annotations")
 include("hw08-gc")
 include("hw10-byteCodes")
+include("hw12-solid")
 
 pluginManagement {
     val jgitver: String by settings
@@ -26,4 +27,3 @@ pluginManagement {
         id("com.diffplug.spotless") version spotless
     }
 }
-include("hw10-byteCodes")
