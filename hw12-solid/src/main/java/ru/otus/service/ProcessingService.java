@@ -1,101 +1,78 @@
 package ru.otus.service;
 
-import static ru.otus.model.currency.Currency.*;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import ru.otus.model.DepositBox;
-import ru.otus.model.currency.Currency;
-import ru.otus.model.currency.Denomination;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
+
+import ru.otus.model.dto.BanknoteDTO;
+import ru.otus.model.dto.DepositBoxDTO;
 
 public class ProcessingService {
     private static final Logger logger = LoggerFactory.getLogger(ProcessingService.class);
 
-    public static void start(Map<Currency, DepositBox> depositBoxes) {
-        logger.info("Запущен основной процессор банкомата");
-        if (depositBoxes == null) return;
-        while (true) {
-            String actionStr = clarifyProcess();
+    private final TakeBanknoteService takeBanknoteService;
+    private final GiveBanknoteService giveBanknoteService;
 
-            switch (actionStr) {
-                case "остановить" -> {
-                    logger.info("Остановлен основной процессор банкомата");
-                    return;}
-                case "остаток" -> printBalance(depositBoxes);
-                case "пополнить" -> takeDenomination(depositBoxes);
-                case "снять" -> giveDenominations(depositBoxes);
-            }
-        }
+    public ProcessingService() {
+        this.takeBanknoteService = new TakeBanknoteService();
+        this.giveBanknoteService = new GiveBanknoteService();
     }
 
-    private static String clarifyProcess() {
-        logger.info("Запущен процесс определения действия клиента");
+    public String clarifyProcess() {
         System.out.println("""
-                Уточните Ваши действия: 
+                Уточните Ваши действия:
                 * Снять денежные средства, тогда введите слово: снять
                 * Пополнить денежные средства, тогда введите слово: пополнить
-                * Узнать остаток средствв банкомате (суперспособность), тогда введите слово: остаток
+                * Узнать остаток средств в банкомате, тогда введите слово: остаток
                 * Выключить банкомат (суперспособность), тогда введите слово: остановить""");
         Scanner scanner = new Scanner(System.in);
         String actionStr = scanner.nextLine();
 
-        logger.info("Клиент выбрал действие: {}. Процесс определения действия клиента окончен", actionStr);
+        logger.info("Клиент выбрал действие: {}. Процесс определения действия клиента окончен.", actionStr);
         return actionStr;
     }
 
-    private static void printBalance(Map<Currency, DepositBox> depositBoxes) {
-        logger.info("Запущен процесс определения остатка купюр в банкомате");
+    public void printBalance(List<DepositBoxDTO> depositBoxList) {
+        long totalSum = 0L;
 
-        for (var depositBox : depositBoxes.entrySet())
-            System.out.printf("Остаток в %s ячейке: %d\n", depositBox.getKey().getLetterCode(), depositBox.getValue().getSum());
+        for (var depositBox : depositBoxList) {
+            System.out.printf("Остаток в ячейке с номиналом в %d %s: %d\n",
+                    depositBox.getBanknote().getAmount(), depositBox.getBanknote().getCurrency(), depositBox.getSum());
+            totalSum += depositBox.getSum();
+        }
 
-        logger.info("Окончен процесс определения остатка купюр в банкомате");
+        System.out.printf("Общая сумма остатка средств в банкомате:%d\n", totalSum);
+        logger.info("Окончен процесс определения остатка купюр в банкомате. Всего средств: {}", totalSum);
     }
 
-    private static void takeDenomination(Map<Currency, DepositBox> depositBoxes) {
-        logger.info("Запущен процесс пополнения купюр в банкомате");
+    public void takeBanknotes(List<DepositBoxDTO> depositBoxList) {
+        Map<BanknoteDTO, Integer> acceptedBanknotes = new HashMap<>();
+        Map<Integer, Integer> unacceptedBanknotes = new HashMap<>();
 
-        List<Denomination> denominations = TakeDenominationsService.clarifyTakeDenomination();
-        int acceptedDenomination = TakeDenominationsService.take(depositBoxes, denominations);
-        TakeDenominationsService.printAcceptedDenominations(acceptedDenomination);
+        // Сообщение о необходимости произвести загрузку банкомата купюрами
+        takeBanknoteService.printInitMessage(depositBoxList);
+        // Ввод купюр
+        takeBanknoteService.fillMapBanknotes(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
+        // Заполнение ячейки принятыми купюрами
+        takeBanknoteService.putInDepositBoxList(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
+        // Вывод сообщения о не принятых купюрах
+        takeBanknoteService.printUnacceptedBanknotes(unacceptedBanknotes);
+        // Вывод сообщения о сумме принятых купюр
+        takeBanknoteService.printAcceptedSum(acceptedBanknotes);
 
         logger.info("Окончен процесс пополнения купюр в банкомате");
     }
 
-    private static void giveDenominations(Map<Currency, DepositBox> depositBoxes) {
-        logger.info("Запущен процесс выдачи купюр");
+    public void giveBanknotes(List<DepositBoxDTO> depositBoxList) {
+        int sum = giveBanknoteService.getSumFromClient(); // Запрос суммы выдачи
+        List<BanknoteDTO> acceptedBanknotes = new ArrayList<>();
+        int unacceptedSum;
+        
+        // Изъятия купюр из ячеек банкомата
+        unacceptedSum = giveBanknoteService.putBanknoteListsFromClient(depositBoxList, sum, acceptedBanknotes);
+        // Вывод сообщения о количестве выданных купюр и не выданной сумме
+        giveBanknoteService.printGivenMessage(acceptedBanknotes, unacceptedSum);
 
-        while (true) {
-            List<Denomination> denominations;
-            System.out.printf("Введите код валюты выводимых средств: %s %s %s\n",
-                    RUB.getLetterCode(), USD.getLetterCode(), EUR.getLetterCode());
-
-            Scanner scanner = new Scanner(System.in);
-            String currencyStr = scanner.nextLine();
-            logger.info("Клиентом выбрана валюта для выдачи купюр: {}", currencyStr);
-
-            System.out.printf("Введите сумму вывода: \n");
-            scanner.reset();
-            int sum = scanner.nextInt();
-            logger.info("Клиентом выбрана сумма для выдачи купюр: {}", sum);
-
-            for (var depositBox : depositBoxes.entrySet()) {
-                if (depositBox.getKey().getLetterCode().equals(currencyStr)) {
-                    try {
-                        denominations = GiveDenominationsService.give(depositBox.getValue(), sum);
-                        GiveDenominationsService.printGivenDenominations(depositBox.getKey(), denominations);
-                    } catch (Exception e) {
-                        continue;
-                    }
-                } else
-                    continue;
-            }
-
-            logger.info("Окончен процесс выдачи купюр в банкомате");
-            break;
-        }
+        logger.info("Окончен процесс выдачи купюр в банкомате");
     }
 }

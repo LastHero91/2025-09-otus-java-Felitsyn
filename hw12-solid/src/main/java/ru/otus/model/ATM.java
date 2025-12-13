@@ -1,29 +1,48 @@
 package ru.otus.model;
 
-import ru.otus.model.currency.Currency;
-import ru.otus.service.InitService;
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import java.util.List;
+
+import ru.otus.model.dto.ATMDTO;
+import ru.otus.model.dto.DepositBoxDTO;
 import ru.otus.service.ProcessingService;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-public class ATM {
+public class ATM implements ATMDTO {
     private static final Logger logger = LoggerFactory.getLogger(ATM.class);
 
-    public ATM() {
-        Map<Currency, DepositBox> depositBoxes = new HashMap();
-        depositBoxes.put(Currency.RUB, new RUBDepositBox());
-        depositBoxes.put(Currency.USD, new USDDepositBox());
-        depositBoxes.put(Currency.EUR, new EURDepositBox());
-        logger.info("Создан банкомант с ячейками для валюты: {}", depositBoxes.keySet());
+    private final List<DepositBoxDTO> depositBoxList;
+    private final ProcessingService processingService;
 
-        InitService.printInitMessage();
-        InitService.initDenomination(depositBoxes);
+    public ATM(List<DepositBoxDTO> depositBoxList) {
+        this.depositBoxList = depositBoxList;
+        this.processingService = new ProcessingService();
 
-        ProcessingService.start(depositBoxes);
+        logger.info("Создан банкомат с ячейками: {}", this.depositBoxList);
+    }
 
-        logger.info("Банкомант остановлен");
+    @Override
+    public void initDepositBoxList() {
+        processingService.takeBanknotes(depositBoxList);
+        logger.info("Ячейки банкомата проинициализированы: {}", depositBoxList);
+    }
+
+    @Override
+    public void startProcessing() {
+        while (true) {
+            String clarifyProcess = processingService.clarifyProcess();
+
+            switch (clarifyProcess) {
+                case "остановить" -> {return;}
+                case "остаток" -> processingService.printBalance(depositBoxList);
+                case "пополнить" -> processingService.takeBanknotes(depositBoxList);
+                case "снять" -> processingService.giveBanknotes(depositBoxList);
+            }
+        }
+    }
+
+    @Override
+    public void endProcessing() {
+        logger.info("Работа банкомата остановлена");
     }
 }
