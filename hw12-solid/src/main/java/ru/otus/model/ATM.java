@@ -12,12 +12,10 @@ public class ATM implements ATMDTO {
     private static final Logger logger = LoggerFactory.getLogger(ATM.class);
 
     private final List<DepositBoxDTO> depositBoxList;
-    private final ProcessingService processingService;
+    private final ProcessingService processingService = new ProcessingService();
 
     public ATM(List<DepositBoxDTO> depositBoxList) {
         this.depositBoxList = depositBoxList;
-        this.processingService = new ProcessingService();
-
         logger.info("Создан банкомат с ячейками: {}", this.depositBoxList);
     }
 

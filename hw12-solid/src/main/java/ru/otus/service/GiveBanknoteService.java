@@ -2,6 +2,7 @@ package ru.otus.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -12,7 +13,20 @@ import ru.otus.model.dto.DepositBoxDTO;
 class GiveBanknoteService {
     private static final Logger logger = LoggerFactory.getLogger(GiveBanknoteService.class);
 
-    public int getSumFromClient() {
+    public void giveBanknotes(List<DepositBoxDTO> depositBoxList) {
+        int sum = getSumFromClient(); // Запрос суммы выдачи
+        List<BanknoteDTO> acceptedBanknotes = new ArrayList<>();
+        int unacceptedSum;
+
+        // Изъятия купюр из ячеек банкомата
+        unacceptedSum = putBanknoteListsFromClient(depositBoxList, sum, acceptedBanknotes);
+        // Вывод сообщения о количестве выданных купюр и не выданной сумме
+        printGivenMessage(acceptedBanknotes, unacceptedSum);
+
+        logger.info("Окончен процесс выдачи купюр в банкомате: {}", depositBoxList);
+    }
+
+    private int getSumFromClient() {
         System.out.println("Введите сумму вывода:");
         Scanner scanner = new Scanner(System.in);
         int sum = scanner.nextInt();
@@ -21,7 +35,7 @@ class GiveBanknoteService {
         return sum;
     }
 
-    public void printGivenMessage(List<BanknoteDTO> acceptedBanknotes, Integer unacceptedSum) {
+    private void printGivenMessage(List<BanknoteDTO> acceptedBanknotes, Integer unacceptedSum) {
         int sum = 0;
         for (var acceptedBanknote : acceptedBanknotes)
             sum += acceptedBanknote.getAmount();
@@ -38,7 +52,7 @@ class GiveBanknoteService {
                 sum, unacceptedSum);
     }
 
-    public int putBanknoteListsFromClient(List<DepositBoxDTO> depositBoxList,
+    private int putBanknoteListsFromClient(List<DepositBoxDTO> depositBoxList,
                                                  int sum, List<BanknoteDTO> acceptedBanknotes) {
         for (var depositBox: depositBoxList) {
             int amount = depositBox.getBanknote().getAmount();
