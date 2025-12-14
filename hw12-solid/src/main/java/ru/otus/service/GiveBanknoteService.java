@@ -13,7 +13,7 @@ import ru.otus.model.dto.DepositBoxDTO;
 class GiveBanknoteService {
     private static final Logger logger = LoggerFactory.getLogger(GiveBanknoteService.class);
 
-    public void giveBanknotes(List<DepositBoxDTO> depositBoxList) {
+    void giveBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
         int sum = getSumFromClient(); // Запрос суммы выдачи
         List<BanknoteDTO> acceptedBanknotes = new ArrayList<>();
         int unacceptedSum;

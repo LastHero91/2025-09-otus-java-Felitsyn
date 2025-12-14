@@ -21,7 +21,7 @@ public class ATM implements ATMDTO {
 
     @Override
     public void initDepositBoxList() {
-        processingService.takeBanknotes(depositBoxList);
+        processingService.takeBanknotesProcess(depositBoxList);
         logger.info("Ячейки банкомата проинициализированы: {}", depositBoxList);
     }
 
@@ -33,8 +33,8 @@ public class ATM implements ATMDTO {
             switch (clarifyProcess) {
                 case "остановить" -> {return;}
                 case "остаток" -> processingService.printBalance(depositBoxList);
-                case "пополнить" -> processingService.takeBanknotes(depositBoxList);
-                case "снять" -> processingService.giveBanknotes(depositBoxList);
+                case "пополнить" -> processingService.takeBanknotesProcess(depositBoxList);
+                case "снять" -> processingService.giveBanknotesProcess(depositBoxList);
             }
         }
     }

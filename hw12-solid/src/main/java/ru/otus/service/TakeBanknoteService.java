@@ -11,7 +11,7 @@ import ru.otus.model.dto.DepositBoxDTO;
 class TakeBanknoteService {
     private static final Logger logger = LoggerFactory.getLogger(TakeBanknoteService.class);
 
-    public void takeBanknotes(List<DepositBoxDTO> depositBoxList) {
+     void takeBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
         Map<BanknoteDTO, Integer> acceptedBanknotes = new HashMap<>();
         Map<Integer, Integer> unacceptedBanknotes = new HashMap<>();
 

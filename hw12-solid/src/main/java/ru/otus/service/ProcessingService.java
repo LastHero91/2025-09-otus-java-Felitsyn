@@ -39,13 +39,13 @@ public class ProcessingService {
         logger.info("Окончен процесс определения остатка купюр в банкомате. Всего средств: {}", totalSum);
     }
 
-    public void takeBanknotes(List<DepositBoxDTO> depositBoxList) {
-        takeBanknoteService.takeBanknotes(depositBoxList);
+    public void takeBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
+        takeBanknoteService.takeBanknotesProcess(depositBoxList);
         logger.info("Окончен процесс пополнения купюр в банкомате");
     }
 
-    public void giveBanknotes(List<DepositBoxDTO> depositBoxList) {
-        giveBanknoteService.giveBanknotes(depositBoxList);
+    public void giveBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
+        giveBanknoteService.giveBanknotesProcess(depositBoxList);
         logger.info("Окончен процесс выдачи купюр в банкомате");
     }
 }
