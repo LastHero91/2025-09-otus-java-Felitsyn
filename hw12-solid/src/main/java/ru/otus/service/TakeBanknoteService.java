@@ -11,25 +11,7 @@ import ru.otus.model.dto.DepositBoxDTO;
 class TakeBanknoteService {
     private static final Logger logger = LoggerFactory.getLogger(TakeBanknoteService.class);
 
-     void takeBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
-        Map<BanknoteDTO, Integer> acceptedBanknotes = new HashMap<>();
-        Map<Integer, Integer> unacceptedBanknotes = new HashMap<>();
-
-        // Сообщение о необходимости произвести загрузку банкомата купюрами
-        printInitMessage(depositBoxList);
-        // Ввод купюр
-        fillMapBanknotes(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
-        // Заполнение ячейки принятыми купюрами
-        putInDepositBoxList(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
-        // Вывод сообщения о не принятых купюрах
-        printUnacceptedBanknotes(unacceptedBanknotes);
-        // Вывод сообщения о сумме принятых купюр
-        printAcceptedSum(acceptedBanknotes);
-
-        logger.info("Окончен процесс пополнения купюр в банкомате: {}", depositBoxList);
-    }
-
-    private void printInitMessage(List<DepositBoxDTO> depositBoxList) {
+    void printInitMessage(List<DepositBoxDTO> depositBoxList) {
         StringBuilder strBanknoteAmounts = new StringBuilder();
         for (var depositBox : depositBoxList)
             strBanknoteAmounts.append(String.format("%s; ",depositBox.getBanknote().getAmount() + depositBox.getBanknote().getCurrency()));
@@ -42,6 +24,25 @@ class TakeBanknoteService {
                 strBanknoteAmounts);
 
         logger.info("Выведено сообщение о необходимости произвести загрузку банкомата купюрами, с примером ввода.");
+    }
+
+     void moveBanknotesProcess(List<DepositBoxDTO> depositBoxList,
+                               Map<BanknoteDTO, Integer> acceptedBanknotes, Map<Integer, Integer> unacceptedBanknotes) {
+        // Ввод купюр
+        fillMapBanknotes(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
+        // Заполнение ячеек купюрами
+        putInDepositBoxList(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
+
+        logger.info("Окончен процесс ввода купюр в банкомат и заполнения ячеек купюрами: {}", depositBoxList);
+    }
+
+    void printBanknotes(Map<BanknoteDTO, Integer> acceptedBanknotes, Map<Integer, Integer> unacceptedBanknotes) {
+        // Вывод сообщения о не принятых купюрах
+        printUnacceptedBanknotes(unacceptedBanknotes);
+        // Вывод сообщения о сумме принятых купюр
+        printAcceptedSum(acceptedBanknotes);
+
+        logger.info("Выведены сообщения о не принятых и принятых купюрах");
     }
 
     private void printAcceptedSum(Map<BanknoteDTO, Integer> acceptedBanknotes) {

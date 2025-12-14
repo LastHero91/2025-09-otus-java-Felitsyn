@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.util.*;
 
+import ru.otus.model.dto.BanknoteDTO;
 import ru.otus.model.dto.DepositBoxDTO;
 
 public class ProcessingService {
@@ -40,12 +41,29 @@ public class ProcessingService {
     }
 
     public void takeBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
-        takeBanknoteService.takeBanknotesProcess(depositBoxList);
-        logger.info("Окончен процесс пополнения купюр в банкомате");
+        Map<BanknoteDTO, Integer> acceptedBanknotes = new HashMap<>();
+        Map<Integer, Integer> unacceptedBanknotes = new HashMap<>();
+
+        // Сообщение о необходимости произвести загрузку банкомата купюрами
+        takeBanknoteService.printInitMessage(depositBoxList);
+        // Ввод купюр и заполнение ячеек купюрами
+        takeBanknoteService.moveBanknotesProcess(depositBoxList, acceptedBanknotes, unacceptedBanknotes);
+        // Вывод сообщения о не принятых и принятых купюрах
+        takeBanknoteService.printBanknotes(acceptedBanknotes, unacceptedBanknotes);
+
+        logger.info("Окончен процесс пополнения купюр в банкомате: {}", depositBoxList);
     }
 
     public void giveBanknotesProcess(List<DepositBoxDTO> depositBoxList) {
-        giveBanknoteService.giveBanknotesProcess(depositBoxList);
-        logger.info("Окончен процесс выдачи купюр в банкомате");
+        int sum = giveBanknoteService.getSumForClient(); // Запрос суммы выдачи
+        List<BanknoteDTO> acceptedBanknotes = new ArrayList<>();
+        int unacceptedSum;
+
+        // Изъятия купюр из ячеек банкомата
+        unacceptedSum = giveBanknoteService.putBanknoteListsFromClient(depositBoxList, sum, acceptedBanknotes);
+        // Вывод сообщения о количестве выданных купюр и не выданной сумме
+        giveBanknoteService.printGivenMessage(acceptedBanknotes, unacceptedSum);
+
+        logger.info("Окончен процесс выдачи купюр в банкомате: {}", depositBoxList);
     }
 }
