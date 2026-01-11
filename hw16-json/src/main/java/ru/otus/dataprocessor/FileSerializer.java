@@ -32,13 +32,13 @@ public class FileSerializer implements Serializer {
             String jsonStr = mapper.writeValueAsString(data);
             logger.info("json отсортирован по ключу и сериализован в строку: {}", jsonStr);
 
-            setJsonToFile(jsonStr);
+            saveJsonToFile(jsonStr);
         } catch (Exception e) {
             throw new FileProcessException(e);
         }
     }
 
-    private void setJsonToFile(String jsonStr) throws IOException {
+    private void saveJsonToFile(String jsonStr) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName))) {
             writer.write(jsonStr);
         }
