@@ -2,12 +2,14 @@ package ru.otus.handler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
@@ -15,6 +17,7 @@ import org.junit.jupiter.api.Test;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
 import ru.otus.processor.Processor;
+import ru.otus.processor.ProcessorEvenSeconds;
 
 class ComplexProcessorTest {
 
@@ -94,5 +97,18 @@ class ComplexProcessorTest {
         public TestException(String message) {
             super(message);
         }
+    }
+
+    @Test
+    @DisplayName("Тестируем вызов процессора четных секунд")
+    void processorEvenSecondsTest() {
+        var message = new Message.Builder(1L).build();
+        var processorEvenSeconds = new ProcessorEvenSeconds();
+
+        if (LocalTime.now().getSecond() % 2 == 0)
+            assertThrows(RuntimeException.class,
+                    () -> processorEvenSeconds.process(message));
+        else
+            assertDoesNotThrow(() -> processorEvenSeconds.process(message));
     }
 }
