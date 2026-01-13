@@ -14,12 +14,16 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import ru.otus.listener.Listener;
 import ru.otus.model.Message;
 import ru.otus.processor.Processor;
 import ru.otus.processor.ProcessorEvenSeconds;
 
 class ComplexProcessorTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ComplexProcessorTest.class);
 
     @Test
     @DisplayName("Тестируем вызовы процессоров")
@@ -101,14 +105,38 @@ class ComplexProcessorTest {
 
     @Test
     @DisplayName("Тестируем вызов процессора четных секунд")
-    void processorEvenSecondsTest() {
+    void processorEvenSecondsTest() throws InterruptedException {
         var message = new Message.Builder(1L).build();
         var processorEvenSeconds = new ProcessorEvenSeconds();
 
-        if (LocalTime.now().getSecond() % 2 == 0)
+        if (LocalTime.now().getSecond() % 2 == 0) {
             assertThrows(RuntimeException.class,
                     () -> processorEvenSeconds.process(message));
-        else
+            logger.info("straightaway: {}", LocalTime.now().getSecond());
+        } else {
+            Thread.sleep(1000);
+            assertThrows(RuntimeException.class,
+                    () -> processorEvenSeconds.process(message));
+            logger.info("deferred: {}", LocalTime.now().getSecond());
+        }
+    }
+
+    @Test
+    @DisplayName("Тестируем вызов процессора не четных секунд")
+    void processorOddSecondsTest() throws InterruptedException {
+        var message = new Message.Builder(1L).build();
+        var processorEvenSeconds = new ProcessorEvenSeconds();
+
+        if (LocalTime.now().getSecond() % 2 != 0) {
             assertDoesNotThrow(() -> processorEvenSeconds.process(message));
+            logger.info("straightaway: {}", LocalTime.now().getSecond());
+        } else {
+            Thread.sleep(1000);
+            assertDoesNotThrow(() -> processorEvenSeconds.process(message));
+            logger.info("deferred: {}", LocalTime.now().getSecond());
+        }
+
+        var messageAfter = processorEvenSeconds.process(message);
+        assertThat(messageAfter).isEqualTo(message);
     }
 }
