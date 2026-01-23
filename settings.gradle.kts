@@ -5,6 +5,7 @@ include("hw06-annotations")
 include("hw08-gc")
 include("hw10-byteCodes")
 include("hw12-solid")
+include("hw15-patterns")
 include("hw16-json")
 
 pluginManagement {
