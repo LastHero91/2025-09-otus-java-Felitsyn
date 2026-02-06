@@ -10,6 +10,7 @@ include("hw16-json")
 
 include("hw18-jdbc:demo")
 include("hw18-jdbc:homework")
+include("hw21-jpql:homework")
 
 pluginManagement {
     val jgitver: String by settings

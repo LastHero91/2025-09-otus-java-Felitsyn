@@ -1,0 +1,11 @@
+version: '1.0'
+services:
+  demoDB: #docker compose up -d
+    image: postgres:13
+    container_name: hw21-jpql
+    ports:
+      - "5430:5432"
+    environment:
+      POSTGRES_DB: demoDB
+      POSTGRES_USER: usr
+      POSTGRES_PASSWORD: pwd
