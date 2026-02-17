@@ -14,3 +14,4 @@
 8) "Обработчик json-ов" - hw16-json;
 9) "Самодельный ORM" - hw18-jdbc;
 10) "Использование Hibernate" - hw21-jpql;
+10) "Свой cache engine" - hw22-cache;
